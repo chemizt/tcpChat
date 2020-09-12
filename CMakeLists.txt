@@ -39,7 +39,7 @@ endif()
 
 set(SOURCE_CHAT src/chat.cpp)
 
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED date_time regex)
 
 add_executable(
     tcpChat
