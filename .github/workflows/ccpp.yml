@@ -1,0 +1,41 @@
+name: build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout master
+      uses: actions/checkout@v2
+    - name: Set up Boost location
+      run: echo "::set-env name=Boost_ROOT::$BOOST_ROOT_1_72_0"
+    - name: Generate build system
+      run: mkdir build && cd build && cmake ..
+    - name: Build
+      run: cd build && make release -j2
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: Linux-built tcpChat
+        path: out/bin/release/tcpChat
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout master
+      uses: actions/checkout@v2
+    - name: Set up MSBuild
+      uses: microsoft/setup-msbuild@v1
+    - name: Generate build system
+      run: rm PreLoad.cmake && mkdir build && cd build && cmake -DBoost_ROOT="${env:BOOST_ROOT_1_72_0}" -DBoost_LIBRARIES="${env:BOOST_ROOT_1_72_0}\lib" ..
+    - name: Build
+      run: cd build && MSBuild tcpChat.sln /p:Configuration=Release /p:Platform=x64 /m
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: Windows-built tcpChat
+        path: out/bin/release/tcpChat.exe
